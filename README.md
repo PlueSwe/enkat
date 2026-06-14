@@ -18,9 +18,11 @@ python3 serve.py        # startar http://127.0.0.1:8777
   linjer markerar enkätrevisionerna (2018, 2022).
 - **Jämför år** – ställ alla frågeområdens index sida vid sida för två tidpunkter,
   med differenstabell.
-- **Karta** – Sverigekarta (choropleth) per kommun för trygghet och nöjdhet
-  (åk 5 / åk 8 / gymnasiet år 2), 2022–2026. Färgen visar hur kommunen ligger till
-  mot kommunmedianen. Hover/klick för värde, topp- och bottenlista. Data från Kolada.
+  Längst ned ligger en **Sverigekarta per kommun** som följer det valda temat
+  (trygghet, studiero, förhindra kränkningar, elevhälsa, stimulans, nöjdhet) för
+  elever i åk 5 / åk 8 / gymnasiet år 2, 2022–2026. Färgen visar hur kommunen
+  ligger till mot kommunmedianen; klick ger värde + topp/bottenlista. Data från
+  Kolada (andel som svarat ”Helt och hållet” – 0–10-indexet finns inte per kommun).
 - **Utforska** – borra ner: år → grupp → delgrupp → område → fråga, och se hela
   svarsfördelningen som pajdiagram + medelvärde.
 

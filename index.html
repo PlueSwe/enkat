@@ -395,6 +395,9 @@ function renderTrender(root){
     const cv=document.getElementById('trChart');
     if(cv&&datasets.length&&labels.length)lineChart(cv,datasets,{min:3,max:10,yTitle:'Index (0–10)',labels});
   },0);
+
+  // Sverigekarta per kommun längst ned – följer valt tema
+  renderThemeMap(root);
 }
 function omradenForAny(group){
   const set=new Set();
@@ -568,9 +571,12 @@ function colForMedel(m){
   return `color:${c}`;
 }
 
-/* ===================== KARTA ===================== */
+/* ===================== KARTA (per kommun, i Trender) ===================== */
 const K = window.KOLADA;
-const kState={kpi:K.kpis[0].id, year:K.years[K.years.length-1], sel:null};
+const kThemes = new Set(K.themes.map(t=>t.tema));
+const mapState={year:K.years[K.years.length-1], grade:null, sel:null};
+const SUB2GRADE={'Åk 5 Grundskola':'ak5','Åk 8 Grundskola':'ak8',
+  'Åk 9 Grundskola':'ak8','År 2 Gymnasieskola':'gy2'};
 let geoProjCache=null;
 
 function hexLerp(a,b,t){
@@ -615,35 +621,53 @@ function pathD(feat, P){
   return polys.map(poly=>poly.map(ring2d).join('')).join('');
 }
 
-function renderKarta(root){
+function renderThemeMap(root){
+  const theme=tState.omrade;
+  // kartdata finns bara för elever och för de teman Kolada täcker
+  if(tState.group!=='Elever'){
+    root.append(el('div',{class:'panel'},el('h2',{},'Karta per kommun'),
+      el('p',{class:'sub'},'Kommunkartan bygger på Skolenkätens elevsvar (åk 5, åk 8 och gymnasiet år 2) via Kolada. Välj gruppen Elever ovan för att se kartan.')));
+    return;
+  }
+  if(!kThemes.has(theme)){
+    root.append(el('div',{class:'panel'},el('h2',{},'Karta per kommun'),
+      el('p',{class:'sub'},'Kommunkarta finns för temana: '+[...kThemes].join(', ')+'. Välj ett av dessa ovan.')));
+    return;
+  }
   if(!window.SWEDEN_GEO){
-    root.append(el('div',{class:'panel'},el('h2',{},'Karta'),
+    root.append(el('div',{class:'panel'},el('h2',{},'Karta per kommun'),
       el('p',{class:'sub'},'Laddar kartdata …')));
     const s=document.createElement('script');
     s.src='vendor/sweden_kommuner.js';
-    s.onload=()=>{ if(active==='karta') renderMain(); };
+    s.onload=()=>{ if(active==='trender') renderMain(); };
     s.onerror=()=>{ const p=root.querySelector('.sub'); if(p)p.textContent='Kunde inte ladda kartdata (vendor/sweden_kommuner.js).'; };
     document.body.append(s);
     return;
   }
   const feats=window.SWEDEN_GEO.features;
   const P=buildProjection(feats);
-  const kpi=K.kpis.find(k=>k.id===kState.kpi);
-  const vals=K.data[kState.kpi][String(kState.year)]||{};
+  const themeObj=K.themes.find(t=>t.tema===theme);
+  // årskurs: följ vald delgrupp om möjligt, annars state/default
+  const subGrades=[...tState.subs].map(s=>SUB2GRADE[s]).filter(Boolean);
+  let grade=mapState.grade;
+  if(!grade || !themeObj.kpi[grade])
+    grade = ['ak5','ak8','gy2'].find(g=>subGrades.includes(g)) || 'ak5';
+  const year=mapState.year;
+  const kpiId=themeObj.kpi[grade];
+  const vals=(K.data[kpiId]&&K.data[kpiId][String(year)])||{};
   const arr=Object.values(vals);
   const med=median(arr);
 
   // ---- panel + kontroller ----
   const panel=el('div',{class:'panel'});
-  panel.append(el('h2',{},'Sverigekarta · '+kpi.tema.toLowerCase()),
-    el('p',{class:'sub'},'Andel som svarat ”Helt och hållet” per kommun. Färgen visar hur kommunen ligger till mot kommunmedianen. Källa: Kolada.'));
+  panel.append(el('h2',{},'Karta per kommun · '+theme.toLowerCase()),
+    el('p',{class:'sub'},'Hur kommunerna ligger till på temat ”'+theme+'”. Färgen visar kommunen mot kommunmedianen. Klicka en kommun för detaljer. Källa: Kolada.'));
   const ctrls=el('div',{class:'controls'});
-  const kpiOpts=K.kpis.map(k=>[k.id, `${k.tema} – ${k.grupp}`]);
-  ctrls.append(mkSel('Fråga / grupp',kpiOpts,kState.kpi,v=>{kState.kpi=v;kState.sel=null;renderMain();}));
-  ctrls.append(mkSel('År',K.years.map(y=>[y,String(y)]),kState.year,v=>{kState.year=+v;renderMain();}));
+  ctrls.append(mkSel('Årskurs',Object.entries(K.grade_label),grade,v=>{mapState.grade=v;mapState.sel=null;renderMain();}));
+  ctrls.append(mkSel('År',K.years.map(y=>[y,String(y)]),year,v=>{mapState.year=+v;renderMain();}));
   panel.append(ctrls);
   panel.append(el('p',{class:'sub',style:'margin:0'},
-    el('b',{html:kpi.fraga}),'  ·  ',
+    el('b',{html:themeObj.fraga}),'  ·  ',
     `${arr.length} kommuner med data  ·  median ${fmt(med)} %`));
 
   // ---- SVG-karta ----
@@ -657,7 +681,7 @@ function renderKarta(root){
     const path=document.createElementNS(ns,'path');
     path.setAttribute('d',pathD(f,P));
     path.setAttribute('fill',colorFor(v,med));
-    if(code===kState.sel)path.setAttribute('class','sel');
+    if(code===mapState.sel)path.setAttribute('class','sel');
     path.addEventListener('mousemove',e=>{
       const r=mapbox.getBoundingClientRect();
       tip.style.left=(e.clientX-r.left)+'px';tip.style.top=(e.clientY-r.top)+'px';
@@ -665,16 +689,16 @@ function renderKarta(root){
       tip.innerHTML=`<b>${f.properties.namn}</b> · ${v==null?'ingen data':fmt(v)+' %'}`;
     });
     path.addEventListener('mouseleave',()=>tip.style.opacity='0');
-    path.addEventListener('click',()=>{kState.sel=(kState.sel===code?null:code);renderMain();});
+    path.addEventListener('click',()=>{mapState.sel=(mapState.sel===code?null:code);renderMain();});
     svg.append(path);
   });
   mapbox.append(svg,tip);
 
   // ---- sidopanel: vald kommun + topp/botten ----
   const side=el('div');
-  const selV = kState.sel?vals[kState.sel]:null;
-  const selName = kState.sel?(feats.find(f=>f.properties.id===kState.sel)?.properties.namn):null;
-  if(kState.sel){
+  const selV = mapState.sel?vals[mapState.sel]:null;
+  const selName = mapState.sel?(feats.find(f=>f.properties.id===mapState.sel)?.properties.namn):null;
+  if(mapState.sel){
     const diff=selV!=null?selV-med:null;
     side.append(el('div',{class:'panel',style:'margin-bottom:16px'},
       el('div',{class:'sub',style:'margin:0 0 4px'},'Vald kommun'),
@@ -687,8 +711,8 @@ function renderKarta(root){
   const ranked=Object.entries(vals).map(([c,v])=>({c,v,
     namn:feats.find(f=>f.properties.id===c)?.properties.namn||c})).sort((a,b)=>b.v-a.v);
   const mkRows=list=>{const w=el('div',{class:'ranklist'});
-    list.forEach(r=>w.append(el('div',{class:'row'+(r.c===kState.sel?' sel':''),
-      onclick:()=>{kState.sel=(kState.sel===r.c?null:r.c);renderMain();}},
+    list.forEach(r=>w.append(el('div',{class:'row'+(r.c===mapState.sel?' sel':''),
+      onclick:()=>{mapState.sel=(mapState.sel===r.c?null:r.c);renderMain();}},
       el('span',{},r.namn),el('span',{class:'v',style:colForPct(r.v,med)},fmt(r.v)+' %'))));
     return w;};
   side.append(el('div',{class:'panel'},
@@ -717,7 +741,6 @@ function colForPct(v,med){
 const TABS=[['oversikt','Översikt',renderOversikt],
   ['trender','Trender',renderTrender],
   ['jamfor','Jämför år',renderJamfor],
-  ['karta','Karta',renderKarta],
   ['utforska','Utforska',renderUtforska]];
 let active='oversikt';
 function renderTabs(){

@@ -10,15 +10,31 @@ import json, os, urllib.request, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-KPIS = [
-    dict(id='N15613', tema='Trygghet', grupp='Elever åk 5',  fraga='Känner du dig trygg i skolan?'),
-    dict(id='N15643', tema='Trygghet', grupp='Elever åk 8',  fraga='Känner du dig trygg i skolan?'),
-    dict(id='N17673', tema='Trygghet', grupp='Gymnasiet år 2', fraga='Känner du dig trygg i skolan?'),
-    dict(id='N15629', tema='Nöjdhet',  grupp='Elever åk 5',  fraga='Hur nöjd är du med din skola?'),
-    dict(id='N15659', tema='Nöjdhet',  grupp='Elever åk 8',  fraga='Hur nöjd är du med din skola?'),
-    dict(id='N17689', tema='Nöjdhet',  grupp='Gymnasiet år 2', fraga='Hur nöjd är du med din skola?'),
+# Tema -> fråga -> KPI per årskurs (Kolada-koder). Värde = andel "Helt och hållet" (%).
+THEMES = [
+    dict(tema='Trygghet', fraga='Känner du dig trygg i skolan?',
+         kpi=dict(ak5='N15613', ak8='N15643', gy2='N17673')),
+    dict(tema='Studiero', fraga='Hur ofta är det arbetsro på lektionerna?',
+         kpi=dict(ak5='N15603', ak8='N15633', gy2='N17663')),
+    dict(tema='Förhindra kränkningar',
+         fraga='Litar du på att de vuxna gör tillräckligt om någon elev blir kränkt?',
+         kpi=dict(ak5='N15614', ak8='N15644', gy2='N17674')),
+    dict(tema='Elevhälsa', fraga='Hur lätt är det att få hjälp av elevhälsan?',
+         kpi=dict(ak5='N15608', ak8='N15638', gy2='N17668')),
+    dict(tema='Stimulans', fraga='Hur ofta får lärarna dig att bli intresserad av skolarbetet?',
+         kpi=dict(ak5='N15602', ak8='N15632', gy2='N17662')),
+    dict(tema='Nöjdhet', fraga='Hur nöjd är du med din skola?',
+         kpi=dict(ak5='N15629', ak8='N15659', gy2='N17689')),
 ]
+GRADE_LABEL = {'ak5': 'Åk 5', 'ak8': 'Åk 8', 'gy2': 'Gymnasiet år 2'}
 YEARS = [2022, 2023, 2024, 2025, 2026]
+
+# platt lista av alla KPI:er att hämta
+KPIS = []
+for th in THEMES:
+    for g, kid in th['kpi'].items():
+        KPIS.append(dict(id=kid, tema=th['tema'], grade=g,
+                         grupp='Elever ' + GRADE_LABEL[g], fraga=th['fraga']))
 
 def fetch(url):
     req = urllib.request.Request(url, headers={'User-Agent': 'skolinsyn/1.0'})
@@ -62,6 +78,8 @@ def main():
         generated=time.strftime('%Y-%m-%d'),
         source='Kolada (kolada.se) – Skolinspektionens Skolenkäten per kommun',
         years=YEARS,
+        themes=THEMES,
+        grade_label=GRADE_LABEL,
         kpis=KPIS,
         national=national,
         data=data,
