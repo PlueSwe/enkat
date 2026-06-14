@@ -126,6 +126,42 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 .ranklist .v{font-weight:700;font-variant-numeric:tabular-nums}
 .kpick{display:flex;flex-direction:column;gap:6px}
 .bigval{font-size:34px;font-weight:800;letter-spacing:-.02em;line-height:1}
+
+/* ---- Mobil ---- */
+@media(max-width:600px){
+  main{padding:14px 12px 48px}
+  header.top .bar{flex-wrap:wrap;gap:12px;padding:12px 14px}
+  header.top .logo{height:34px}
+  header.top .titles{border-left:0;padding-left:0;flex-basis:100%}
+  header.top h1{font-size:16px;line-height:1.2}
+  header.top .titles p{display:none}
+  /* flikar: scrolla i sidled istället för att radbrytas */
+  .tabs .inner{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    padding:0 8px;scrollbar-width:none}
+  .tabs .inner::-webkit-scrollbar{display:none}
+  .tab{padding:12px 13px;font-size:13px;white-space:nowrap;flex:0 0 auto}
+  .panel{padding:15px 14px;border-radius:8px;margin-bottom:14px}
+  .panel h2{font-size:16px}
+  /* kontroller: varje väljare på egen rad, full bredd, 16px (ingen iOS-zoom) */
+  .controls{gap:10px}
+  .ctrl{flex:1 1 100%}
+  select{width:100%;min-width:0;font-size:16px}
+  .chartbox{height:300px}
+  .chartbox.sm{height:260px}
+  .legendnote{font-size:11.5px;gap:10px}
+  .kpis{grid-template-columns:1fr 1fr;gap:10px}
+  .kpi{padding:13px 14px}
+  .kpi .n{font-size:24px}
+  .grid2{gap:14px}
+  table{font-size:12.5px}
+  th,td{padding:7px 6px}
+  .gauge .val{font-size:32px}
+  .periodfilter{gap:7px}
+  .pf-year{min-width:50px;padding:6px 6px}
+  .mapbox{min-height:0;padding:6px}
+  .mapbox svg{max-height:64vh}
+  .pf-actions{flex-wrap:wrap}
+}
 </style>
 </head>
 <body>
