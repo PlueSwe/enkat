@@ -22,10 +22,11 @@ body{margin:0;font-family:'Mulish',-apple-system,BlinkMacSystemFont,"Segoe UI",R
   color:var(--ink);background:#f3f6f7;-webkit-font-smoothing:antialiased}
 a{color:var(--brand)}
 header.top{background:#fff;border-bottom:4px solid var(--brand);padding:0}
-header.top .bar{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:18px;
-  padding:16px 24px 14px}
-header.top .logo{height:30px;width:auto;flex:none}
-header.top .titles{border-left:2px solid var(--line);padding-left:18px}
+header.top .bar{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:22px;
+  padding:18px 24px 16px}
+header.top .logo{height:48px;width:auto;flex:none}
+header.top .titles{border-left:2px solid var(--line);padding-left:22px}
+@media(max-width:560px){header.top .logo{height:38px}}
 header.top h1{margin:0;font-size:20px;font-weight:800;letter-spacing:-.01em;color:var(--brand)}
 header.top p{margin:3px 0 0;color:var(--muted);font-size:13px;max-width:780px}
 .tabs{background:var(--brand)}
@@ -51,6 +52,22 @@ select:focus{outline:2px solid var(--brand);border-color:var(--brand)}
 .chip:hover{border-color:var(--brand)}
 .chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
 .chip.theme.on{background:var(--teal);border-color:var(--teal)}
+.chip.sm{font-size:12px;padding:4px 9px}
+.periodfilter{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+.pf-year{display:flex;flex-direction:column;gap:5px;border:1px solid var(--line);
+  border-radius:var(--radius);padding:7px 8px;background:#fff;min-width:58px}
+.pf-year .yr{font-size:13px;font-weight:800;padding:4px 6px;border-radius:4px;cursor:pointer;
+  text-align:center;color:var(--brand);user-select:none;border:1px solid transparent}
+.pf-year .yr.on{background:var(--brand);color:#fff}
+.pf-year .yr.partial{background:var(--tint2);border-color:var(--brand)}
+.pf-terms{display:flex;gap:4px;justify-content:center}
+.pf-terms .tm{font-size:11px;font-weight:700;padding:3px 7px;border-radius:4px;cursor:pointer;
+  border:1px solid var(--line);background:#fff;color:var(--muted);user-select:none}
+.pf-terms .tm.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.pf-actions{display:flex;gap:7px;align-items:center;margin:2px 0 14px}
+.linklike{background:none;border:0;color:var(--brand);font-weight:700;font-size:12.5px;
+  cursor:pointer;font-family:inherit;padding:4px 6px}
+.linklike:hover{text-decoration:underline}
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:4px}
 .kpi{background:var(--tint);border:1px solid var(--line);border-left:4px solid var(--brand);
   border-radius:var(--radius);padding:16px 18px}
@@ -110,6 +127,13 @@ const periods = M.periods;                       // ordnade
 const periodLabels = periods.map(p=>p.label);
 const fmt = n => (n==null?'–':n.toFixed(1).replace('.',','));
 
+// valda mättillfällen (kan klickas i/ur). Default: alla.
+const selPeriods = new Set(periodLabels);
+const activeLabels = () => periodLabels.filter(l=>selPeriods.has(l));
+const periodsByYear = () => {
+  const o={}; periods.forEach(p=>{(o[p.year]=o[p.year]||[]).push(p);}); return o;
+};
+
 // färgpaletter – Skolinspektionens profil
 const SERIES_COLORS = ['#004b62','#137870','#da4c15','#f59c00','#50a27e','#004f7a','#9d4e8c','#7a8b1f'];
 const ANSWER5 = ['#137870','#7bbfa0','#f59c00','#da4c15','#c4cdd3'];
@@ -152,29 +176,27 @@ function el(tag,attrs={},...kids){
 }
 function option(v,t,sel){const o=el('option',{value:v},t);if(sel)o.selected=true;return o;}
 
-// markerar revisionsbrott i linjediagram
+// markerar revisionsbrott i linjediagram (utgår från diagrammets etiketter)
+const REV_LABELS = new Set(['VT 2018','2022']);
 const revisionPlugin = {
   id:'revlines',
   afterDraw(chart){
     const {ctx,chartArea:{top,bottom},scales:{x}}=chart;
-    periods.forEach((p,i)=>{
-      if((p.year===2018&&p.term==='vt')||(p.year===2022)){
-        if(p.year===2022&&p.term!=='helar')return;
-        if(p.year===2018&&p.term!=='vt')return;
-        const xp=x.getPixelForValue(i);
-        ctx.save();ctx.strokeStyle='rgba(0,75,98,.35)';ctx.setLineDash([5,4]);
-        ctx.beginPath();ctx.moveTo(xp,top);ctx.lineTo(xp,bottom);ctx.stroke();
-        ctx.setLineDash([]);ctx.fillStyle='#9a7b16';ctx.font='10px Mulish,sans-serif';
-        ctx.fillText('revidering',xp+3,top+11);ctx.restore();
-      }
+    (chart.data.labels||[]).forEach((lab,i)=>{
+      if(!REV_LABELS.has(lab))return;
+      const xp=x.getPixelForValue(i);
+      ctx.save();ctx.strokeStyle='rgba(0,75,98,.35)';ctx.setLineDash([5,4]);
+      ctx.beginPath();ctx.moveTo(xp,top);ctx.lineTo(xp,bottom);ctx.stroke();
+      ctx.setLineDash([]);ctx.fillStyle='#9a7b16';ctx.font='10px Mulish,sans-serif';
+      ctx.fillText('revidering',xp+3,top+11);ctx.restore();
     });
   }
 };
 
-function lineChart(canvas, datasets, {min,max,yTitle}={}){
+function lineChart(canvas, datasets, {min,max,yTitle,labels}={}){
   const c=new Chart(canvas,{
     type:'line',
-    data:{labels:periodLabels,datasets},
+    data:{labels:labels||periodLabels,datasets},
     options:{
       responsive:true,maintainAspectRatio:false,
       interaction:{mode:'nearest',intersect:false},
@@ -192,18 +214,52 @@ function lineChart(canvas, datasets, {min,max,yTitle}={}){
   });
   charts.push(c);return c;
 }
-// bygg dataset från en indexserie, fyll luckor med null längs hela tidsaxeln
-function datasetFromSeries(s, color, label){
+// bygg dataset från en indexserie längs valda etiketter (luckor = null)
+function datasetFromSeries(s, color, label, labels){
+  labels = labels||periodLabels;
   const byLabel={};s.points.forEach(p=>byLabel[p.label]=p);
-  const data=periodLabels.map(l=>byLabel[l]?byLabel[l].index:null);
-  const calc=periodLabels.map(l=>byLabel[l]&&byLabel[l].source==='beräknad');
+  const data=labels.map(l=>byLabel[l]?byLabel[l].index:null);
+  const calc=labels.map(l=>byLabel[l]&&byLabel[l].source==='beräknad');
   return {
     label, data, borderColor:color, backgroundColor:color+'22',
     spanGaps:true, tension:.3, borderWidth:2.5, pointRadius:4, pointHoverRadius:6,
-    pointStyle:periodLabels.map((l,i)=>calc[i]?'rectRot':'circle'),
-    pointBackgroundColor:periodLabels.map((l,i)=>calc[i]?'#fff':color),
+    pointStyle:labels.map((l,i)=>calc[i]?'rectRot':'circle'),
+    pointBackgroundColor:labels.map((l,i)=>calc[i]?'#fff':color),
     pointBorderColor:color
   };
+}
+
+// periodväljare: klicka år / delar av år i och ur -> graferna uppdateras
+function renderPeriodFilter(panel){
+  const wrap=el('div');
+  wrap.append(el('div',{class:'flex',style:'margin-bottom:8px'},
+    el('span',{class:'muted',style:'font-size:12px;font-weight:700'},'Tidsperioder:'),
+    el('button',{class:'linklike',onclick:()=>{periodLabels.forEach(l=>selPeriods.add(l));renderMain();}},'Markera alla'),
+    el('button',{class:'linklike',onclick:()=>{const keep=periodLabels.slice(-6);selPeriods.clear();keep.forEach(l=>selPeriods.add(l));renderMain();}},'Senaste 6'),
+    el('button',{class:'linklike',onclick:()=>{selPeriods.clear();periods.forEach(p=>{if(p.term==='helar'||p.term==='vt')selPeriods.add(p.label);});renderMain();}},'Vårtermin/helår')));
+  const pf=el('div',{class:'periodfilter'});
+  const byYear=periodsByYear();
+  Object.keys(byYear).sort().forEach(yr=>{
+    const ps=byYear[yr];
+    const allOn=ps.every(p=>selPeriods.has(p.label));
+    const anyOn=ps.some(p=>selPeriods.has(p.label));
+    const yrEl=el('div',{class:'pf-year'});
+    yrEl.append(el('div',{class:'yr'+(allOn?' on':anyOn?' partial':''),
+      onclick:()=>{ if(allOn)ps.forEach(p=>selPeriods.delete(p.label));
+                    else ps.forEach(p=>selPeriods.add(p.label)); renderMain(); }},yr));
+    if(ps.length>1){
+      const tr=el('div',{class:'pf-terms'});
+      ps.forEach(p=>{
+        const t=p.term==='vt'?'VT':p.term==='ht'?'HT':'År';
+        tr.append(el('div',{class:'tm'+(selPeriods.has(p.label)?' on':''),
+          onclick:()=>{ selPeriods.has(p.label)?selPeriods.delete(p.label):selPeriods.add(p.label); renderMain(); }},t));
+      });
+      yrEl.append(tr);
+    }
+    pf.append(yrEl);
+  });
+  wrap.append(pf);
+  panel.append(wrap);
 }
 
 /* ===================== ÖVERSIKT ===================== */
@@ -291,6 +347,10 @@ function renderTrender(root){
   panel.append(el('div',{class:'flex'},
     el('span',{class:'muted',style:'font-size:12px;font-weight:700'},'Delgrupper:'),subRow));
 
+  // periodväljare (klicka år / delar av år i och ur)
+  renderPeriodFilter(panel);
+  panel.append(el('div',{class:'pf-actions'}));
+
   panel.append(el('div',{class:'chartbox'},el('canvas',{id:'trChart'})));
   panel.append(el('div',{class:'legendnote'},
     el('span',{},el('span',{class:'dot',style:'background:#004b62'}),'heldragen markör = officiellt index'),
@@ -298,18 +358,20 @@ function renderTrender(root){
     el('span',{},'streckad lodrät = enkätrevision')));
   root.append(panel);
 
+  const labels=activeLabels();
   const subs=[...tState.subs];
   const datasets=subs.map((sg,i)=>{
     const s=seriesFor(tState.group,sg,tState.omrade);
     if(!s)return null;
-    return datasetFromSeries(s,SERIES_COLORS[i%SERIES_COLORS.length],sg);
+    return datasetFromSeries(s,SERIES_COLORS[i%SERIES_COLORS.length],sg,labels);
   }).filter(Boolean);
-  if(datasets.length===0){
-    panel.append(el('div',{class:'note'},'Inga data för den kombinationen.'));
+  if(datasets.length===0||labels.length===0){
+    panel.append(el('div',{class:'note'},
+      labels.length===0?'Inga tidsperioder valda – markera minst en ovan.':'Inga data för den kombinationen.'));
   }
   setTimeout(()=>{ // canvas måste finnas i DOM
     const cv=document.getElementById('trChart');
-    if(cv&&datasets.length)lineChart(cv,datasets,{min:3,max:10,yTitle:'Index (0–10)'});
+    if(cv&&datasets.length&&labels.length)lineChart(cv,datasets,{min:3,max:10,yTitle:'Index (0–10)',labels});
   },0);
 }
 function omradenForAny(group){
