@@ -1,0 +1,11 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Råa PDF:er (hämtas via fetch_pdfs.py) och regenererbara mellanfiler
+raw/
+txt/
+data/rows_raw.json
+data/trends_raw.json
+data/oindex_raw.json

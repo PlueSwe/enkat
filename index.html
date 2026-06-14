@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skolenkäten – Resultat & trender 2015–2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#004b62; --brand-d:#00384a; --teal:#137870; --green:#50a27e; --gold:#fbba30;
+  --panel:#ffffff; --ink:#212529; --muted:#6c757d;
+  --line:#dee2e6; --line2:#e9ecef; --accent:#004b62;
+  --tint:#e6f5f2; --tint2:#e5eff4;
+  --pos:#137870; --pos2:#50a27e; --mid:#f59c00; --neg:#da4c15; --vetej:#adb5bd;
+  --shadow:0 1px 2px rgba(0,75,98,.06),0 6px 18px rgba(0,75,98,.07);
+  --radius:6px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Mulish',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--ink);background:#f3f6f7;-webkit-font-smoothing:antialiased}
+a{color:var(--brand)}
+header.top{background:#fff;border-bottom:4px solid var(--brand);padding:0}
+header.top .bar{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:18px;
+  padding:16px 24px 14px}
+header.top .logo{height:30px;width:auto;flex:none}
+header.top .titles{border-left:2px solid var(--line);padding-left:18px}
+header.top h1{margin:0;font-size:20px;font-weight:800;letter-spacing:-.01em;color:var(--brand)}
+header.top p{margin:3px 0 0;color:var(--muted);font-size:13px;max-width:780px}
+.tabs{background:var(--brand)}
+.tabs .inner{max-width:1180px;margin:0 auto;display:flex;gap:0;padding:0 24px;flex-wrap:wrap}
+.tab{appearance:none;border:0;background:transparent;color:#cfe4ea;font-weight:700;
+  font-size:14px;padding:13px 20px;cursor:pointer;border-bottom:3px solid transparent}
+.tab:hover{color:#fff}
+.tab.active{color:#fff;border-bottom-color:var(--gold)}
+main{max-width:1180px;margin:0 auto;padding:24px 24px 64px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:20px 22px;margin-bottom:20px}
+.panel h2{margin:0 0 4px;font-size:18px;font-weight:800;letter-spacing:-.01em;color:var(--brand)}
+.panel .sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+.controls{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;margin-bottom:18px}
+.ctrl{display:flex;flex-direction:column;gap:5px}
+.ctrl label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+select,.btnlike{font-size:14px;font-family:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:var(--radius);
+  background:#fff;color:var(--ink);min-width:150px;cursor:pointer}
+select:focus{outline:2px solid var(--brand);border-color:var(--brand)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{font-size:13px;font-weight:600;padding:7px 13px;border-radius:var(--radius);border:1px solid var(--line);
+  background:#fff;color:var(--ink);cursor:pointer;user-select:none;transition:.12s}
+.chip:hover{border-color:var(--brand)}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.chip.theme.on{background:var(--teal);border-color:var(--teal)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:4px}
+.kpi{background:var(--tint);border:1px solid var(--line);border-left:4px solid var(--brand);
+  border-radius:var(--radius);padding:16px 18px}
+.kpi .n{font-size:30px;font-weight:800;letter-spacing:-.02em;line-height:1;color:var(--brand)}
+.kpi .l{font-size:12.5px;color:var(--muted);margin-top:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px}
+@media(max-width:860px){.grid2,.grid3{grid-template-columns:1fr}
+  header.top .titles p{display:none}}
+.chartbox{position:relative;height:380px}
+.chartbox.sm{height:300px}
+.legendnote{font-size:12px;color:var(--muted);margin-top:10px;display:flex;gap:16px;flex-wrap:wrap}
+.legendnote span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:11px;height:11px;border-radius:2px;display:inline-block}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:3px}
+.badge.calc{background:#fdeccd;color:#8a5a00}
+.badge.rev{background:var(--tint2);color:var(--brand)}
+.qrow{cursor:pointer}
+.qrow:hover{background:var(--tint)}
+.qrow.sel{background:var(--tint2)}
+.gauge{display:flex;align-items:center;gap:14px}
+.gauge .val{font-size:40px;font-weight:800;letter-spacing:-.03em}
+.gauge .scale{font-size:12px;color:var(--muted)}
+.note{font-size:12.5px;color:var(--muted);background:var(--tint);border:1px solid var(--line);
+  border-left:4px solid var(--teal);border-radius:var(--radius);padding:12px 14px;margin-top:8px}
+.hidden{display:none}
+.pillbar{display:flex;height:26px;border-radius:4px;overflow:hidden;border:1px solid var(--line);margin:4px 0}
+.pillbar i{display:block;height:100%}
+.flex{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <img class="logo" src="vendor/skolinspektionen_logo.svg" alt="Skolinspektionen">
+    <div class="titles">
+      <h1>Skolenkäten · resultat &amp; trender 2015–2026</h1>
+      <p>Utforska hur elever, vårdnadshavare och lärare svarar – jämför mellan år och
+         områden, och gräv ner dig i enskilda frågor. Skala 0–10, högre är bättre.</p>
+    </div>
+  </div>
+</header>
+<nav class="tabs"><div class="inner" id="tabs"></div></nav>
+<main id="main"></main>
+
+<script src="vendor/chart.umd.js"></script>
+<script src="skolenkaten_data.js"></script>
+<script>
+const D = window.SKOLDATA;
+const M = D.meta;
+const periods = M.periods;                       // ordnade
+const periodLabels = periods.map(p=>p.label);
+const fmt = n => (n==null?'–':n.toFixed(1).replace('.',','));
+
+// färgpaletter – Skolinspektionens profil
+const SERIES_COLORS = ['#004b62','#137870','#da4c15','#f59c00','#50a27e','#004f7a','#9d4e8c','#7a8b1f'];
+const ANSWER5 = ['#137870','#7bbfa0','#f59c00','#da4c15','#c4cdd3'];
+const ANSWER6 = ['#004b62','#137870','#7bbfa0','#f59c00','#da4c15','#c4cdd3'];
+const REV_YEARS = {2018:'Reviderad enkät 2018', 2022:'Stor revidering 2022'};
+
+let charts = [];
+function clearCharts(){charts.forEach(c=>c.destroy());charts=[];}
+
+// ---- helpers ----
+function seriesFor(group, subgroup, omrade){
+  return D.index_series.find(s=>s.group===group&&s.subgroup===subgroup&&s.omrade===omrade);
+}
+function omradenFor(group, subgroup){
+  const set=new Set();
+  D.index_series.forEach(s=>{if(s.group===group&&s.subgroup===subgroup)set.add(s.omrade);});
+  return [...set].sort();
+}
+function subgroupsWithData(group){
+  const set=new Set();
+  D.index_series.forEach(s=>{if(s.group===group)set.add(s.subgroup);});
+  // behåll ordning enligt meta om möjligt
+  const order=M.subgroups[group]||[];
+  return [...set].sort((a,b)=>(order.indexOf(a)-order.indexOf(b)));
+}
+function questionsFor(period,group,subgroup,omrade){
+  return D.questions.filter(q=>q.period===period&&q.group===group&&
+    (subgroup==null||q.subgroup===subgroup)&&(omrade==null||q.omrade===omrade));
+}
+function el(tag,attrs={},...kids){
+  const e=document.createElement(tag);
+  for(const k in attrs){
+    if(k==='class')e.className=attrs[k];
+    else if(k==='html')e.innerHTML=attrs[k];
+    else if(k.startsWith('on'))e.addEventListener(k.slice(2),attrs[k]);
+    else e.setAttribute(k,attrs[k]);
+  }
+  kids.flat().forEach(k=>e.append(k?.nodeType?k:document.createTextNode(k??'')));
+  return e;
+}
+function option(v,t,sel){const o=el('option',{value:v},t);if(sel)o.selected=true;return o;}
+
+// markerar revisionsbrott i linjediagram
+const revisionPlugin = {
+  id:'revlines',
+  afterDraw(chart){
+    const {ctx,chartArea:{top,bottom},scales:{x}}=chart;
+    periods.forEach((p,i)=>{
+      if((p.year===2018&&p.term==='vt')||(p.year===2022)){
+        if(p.year===2022&&p.term!=='helar')return;
+        if(p.year===2018&&p.term!=='vt')return;
+        const xp=x.getPixelForValue(i);
+        ctx.save();ctx.strokeStyle='rgba(0,75,98,.35)';ctx.setLineDash([5,4]);
+        ctx.beginPath();ctx.moveTo(xp,top);ctx.lineTo(xp,bottom);ctx.stroke();
+        ctx.setLineDash([]);ctx.fillStyle='#9a7b16';ctx.font='10px Mulish,sans-serif';
+        ctx.fillText('revidering',xp+3,top+11);ctx.restore();
+      }
+    });
+  }
+};
+
+function lineChart(canvas, datasets, {min,max,yTitle}={}){
+  const c=new Chart(canvas,{
+    type:'line',
+    data:{labels:periodLabels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'nearest',intersect:false},
+      plugins:{
+        legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8,font:{size:12}}},
+        tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.parsed.y)}`}}
+      },
+      scales:{
+        y:{min:min??null,max:max??null,title:{display:!!yTitle,text:yTitle},
+           grid:{color:'#eef2f7'},ticks:{font:{size:11}}},
+        x:{grid:{display:false},ticks:{font:{size:11},maxRotation:60,minRotation:0}}
+      }
+    },
+    plugins:[revisionPlugin]
+  });
+  charts.push(c);return c;
+}
+// bygg dataset från en indexserie, fyll luckor med null längs hela tidsaxeln
+function datasetFromSeries(s, color, label){
+  const byLabel={};s.points.forEach(p=>byLabel[p.label]=p);
+  const data=periodLabels.map(l=>byLabel[l]?byLabel[l].index:null);
+  const calc=periodLabels.map(l=>byLabel[l]&&byLabel[l].source==='beräknad');
+  return {
+    label, data, borderColor:color, backgroundColor:color+'22',
+    spanGaps:true, tension:.3, borderWidth:2.5, pointRadius:4, pointHoverRadius:6,
+    pointStyle:periodLabels.map((l,i)=>calc[i]?'rectRot':'circle'),
+    pointBackgroundColor:periodLabels.map((l,i)=>calc[i]?'#fff':color),
+    pointBorderColor:color
+  };
+}
+
+/* ===================== ÖVERSIKT ===================== */
+function renderOversikt(root){
+  const kpis=el('div',{class:'kpis'});
+  const facts=[
+    [periods.length,'mättillfällen (VT/HT 2015 → 2026)'],
+    [D.questions.length.toLocaleString('sv'),'extraherade frågesvar'],
+    [M.groups.length,'svarsgrupper'],
+    [D.index_series.length,'indextidsserier']
+  ];
+  facts.forEach(f=>kpis.append(el('div',{class:'kpi'},
+    el('div',{class:'n'},String(f[0])),el('div',{class:'l'},f[1]))));
+  root.append(el('div',{class:'panel'},
+    el('h2',{},'Översikt'),
+    el('p',{class:'sub'},'Hela materialet i siffror. Välj en flik ovan för att utforska vidare.'),
+    kpis));
+
+  // highlight: stabila teman för Elever (alla delgrupper sammanslaget = medel)
+  const themes=M.stable_themes;
+  const box=el('div',{class:'panel'},
+    el('h2',{},'Stabila teman över tid · elever'),
+    el('p',{class:'sub'},'Genomsnittligt index för elever (alla årskurser). Streckade markörer = beräknat värde där officiellt index saknas. Lodräta linjer markerar enkätrevisioner.'),
+    el('div',{class:'chartbox'},el('canvas',{id:'ovChart'})));
+  root.append(box);
+  const datasets=themes.map((t,i)=>{
+    // medel över delgrupper per period
+    const subs=subgroupsWithData('Elever');
+    const acc={};
+    subs.forEach(sg=>{const s=seriesFor('Elever',sg,t);if(s)s.points.forEach(p=>{
+      (acc[p.label]=acc[p.label]||[]).push(p.index);});});
+    const pts=Object.keys(acc).map(l=>({label:l,index:acc[l].reduce((a,b)=>a+b,0)/acc[l].length,source:'agg'}));
+    return datasetFromSeries({points:pts}, SERIES_COLORS[i], t);
+  });
+  lineChart(document.getElementById('ovChart'),datasets,{min:4,max:10,yTitle:'Index (0–10)'});
+
+  root.append(el('div',{class:'note'},
+    'Datakälla: Skolinspektionens öppet publicerade totalrapporter för Skolenkäten. '+
+    'Frågor och frågeområden har reviderats över tid (tydligast 2018 och 2022), '+
+    'vilket gör jämförelser över dessa brott ungefärliga. Stabila teman som trygghet och '+
+    'studiero går dock att följa hela vägen.'));
+}
+
+/* ===================== TRENDER ===================== */
+const tState={group:'Elever',omrade:'Trygghet',subs:null,showCalc:true};
+function renderTrender(root){
+  const groups=M.groups;
+  if(!tState.subs)tState.subs=new Set(subgroupsWithData(tState.group));
+  const panel=el('div',{class:'panel'});
+  panel.append(el('h2',{},'Trender över tid'),
+    el('p',{class:'sub'},'Följ ett frågeområde över åren. Välj grupp, område och vilka delgrupper som ska visas.'));
+
+  const ctrls=el('div',{class:'controls'});
+  // grupp
+  const gSel=el('select',{onchange:e=>{tState.group=e.target.value;
+    tState.subs=new Set(subgroupsWithData(tState.group));
+    const oms=omradenFor(tState.group,[...tState.subs][0]);
+    if(!omradenForAny(tState.group).includes(tState.omrade))tState.omrade=omradenForAny(tState.group)[0];
+    renderMain();}},...groups.map(g=>option(g,g,g===tState.group)));
+  ctrls.append(el('div',{class:'ctrl'},el('label',{},'Grupp'),gSel));
+  // område
+  const allOm=omradenForAny(tState.group);
+  const oSel=el('select',{onchange:e=>{tState.omrade=e.target.value;renderMain();}},
+    ...allOm.map(o=>option(o,o,o===tState.omrade)));
+  ctrls.append(el('div',{class:'ctrl'},el('label',{},'Frågeområde'),oSel));
+  panel.append(ctrls);
+
+  // snabbval stabila teman
+  const themeRow=el('div',{class:'chips',style:'margin-bottom:14px'});
+  M.stable_themes.forEach(t=>{
+    if(!allOm.includes(t))return;
+    themeRow.append(el('span',{class:'chip theme'+(t===tState.omrade?' on':''),
+      onclick:()=>{tState.omrade=t;renderMain();}},t));
+  });
+  if(themeRow.children.length)panel.append(el('div',{class:'flex'},
+    el('span',{class:'muted',style:'font-size:12px;font-weight:700'},'Stabila teman:'),themeRow));
+
+  // delgrupper (checkbar via chips)
+  const subRow=el('div',{class:'chips',style:'margin:14px 0'});
+  subgroupsWithData(tState.group).forEach(sg=>{
+    subRow.append(el('span',{class:'chip'+(tState.subs.has(sg)?' on':''),
+      onclick:()=>{tState.subs.has(sg)?tState.subs.delete(sg):tState.subs.add(sg);
+        if(tState.subs.size===0)tState.subs.add(sg);renderMain();}},sg));
+  });
+  panel.append(el('div',{class:'flex'},
+    el('span',{class:'muted',style:'font-size:12px;font-weight:700'},'Delgrupper:'),subRow));
+
+  panel.append(el('div',{class:'chartbox'},el('canvas',{id:'trChart'})));
+  panel.append(el('div',{class:'legendnote'},
+    el('span',{},el('span',{class:'dot',style:'background:#004b62'}),'heldragen markör = officiellt index'),
+    el('span',{},'◇ ihålig = beräknat (medel av frågor där index saknas)'),
+    el('span',{},'streckad lodrät = enkätrevision')));
+  root.append(panel);
+
+  const subs=[...tState.subs];
+  const datasets=subs.map((sg,i)=>{
+    const s=seriesFor(tState.group,sg,tState.omrade);
+    if(!s)return null;
+    return datasetFromSeries(s,SERIES_COLORS[i%SERIES_COLORS.length],sg);
+  }).filter(Boolean);
+  if(datasets.length===0){
+    panel.append(el('div',{class:'note'},'Inga data för den kombinationen.'));
+  }
+  setTimeout(()=>{ // canvas måste finnas i DOM
+    const cv=document.getElementById('trChart');
+    if(cv&&datasets.length)lineChart(cv,datasets,{min:3,max:10,yTitle:'Index (0–10)'});
+  },0);
+}
+function omradenForAny(group){
+  const set=new Set();
+  D.index_series.forEach(s=>{if(s.group===group)set.add(s.omrade);});
+  return [...set].sort();
+}
+
+/* ===================== JÄMFÖR ÅR ===================== */
+const cState={group:'Elever',sub:null,pA:null,pB:null};
+function renderJamfor(root){
+  if(!cState.sub)cState.sub=subgroupsWithData(cState.group)[0];
+  const subs=subgroupsWithData(cState.group);
+  if(!subs.includes(cState.sub))cState.sub=subs[0];
+  // perioder som har data för denna grupp/delgrupp
+  const avail=periods.filter(p=>D.index_series.some(s=>
+    s.group===cState.group&&s.subgroup===cState.sub&&s.points.some(x=>x.label===p.label)));
+  if(!cState.pA||!avail.some(p=>p.label===cState.pA))cState.pA=avail[0]?.label;
+  if(!cState.pB||!avail.some(p=>p.label===cState.pB))cState.pB=avail[avail.length-1]?.label;
+
+  const panel=el('div',{class:'panel'});
+  panel.append(el('h2',{},'Jämför två mättillfällen'),
+    el('p',{class:'sub'},'Ställ alla frågeområdens index sida vid sida för två valda tidpunkter.'));
+  const ctrls=el('div',{class:'controls'});
+  ctrls.append(el('div',{class:'ctrl'},el('label',{},'Grupp'),
+    el('select',{onchange:e=>{cState.group=e.target.value;cState.sub=null;renderMain();}},
+      ...M.groups.map(g=>option(g,g,g===cState.group)))));
+  ctrls.append(el('div',{class:'ctrl'},el('label',{},'Delgrupp'),
+    el('select',{onchange:e=>{cState.sub=e.target.value;renderMain();}},
+      ...subs.map(s=>option(s,s,s===cState.sub)))));
+  ctrls.append(el('div',{class:'ctrl'},el('label',{},'Tidpunkt A'),
+    el('select',{onchange:e=>{cState.pA=e.target.value;renderMain();}},
+      ...avail.map(p=>option(p.label,p.label,p.label===cState.pA)))));
+  ctrls.append(el('div',{class:'ctrl'},el('label',{},'Tidpunkt B'),
+    el('select',{onchange:e=>{cState.pB=e.target.value;renderMain();}},
+      ...avail.map(p=>option(p.label,p.label,p.label===cState.pB)))));
+  panel.append(ctrls);
+  panel.append(el('div',{class:'chartbox'},el('canvas',{id:'cmpChart'})));
+  root.append(panel);
+
+  // data
+  const oms=omradenFor(cState.group,cState.sub);
+  const valA=[],valB=[],labels=[];
+  oms.forEach(o=>{
+    const s=seriesFor(cState.group,cState.sub,o);
+    const a=s.points.find(p=>p.label===cState.pA);
+    const b=s.points.find(p=>p.label===cState.pB);
+    if(a||b){labels.push(o);valA.push(a?a.index:null);valB.push(b?b.index:null);}
+  });
+  setTimeout(()=>{
+    const cv=document.getElementById('cmpChart');if(!cv)return;
+    const c=new Chart(cv,{type:'bar',
+      data:{labels,datasets:[
+        {label:cState.pA,data:valA,backgroundColor:'#9fc6d1',borderColor:'#004b62',borderWidth:1},
+        {label:cState.pB,data:valB,backgroundColor:'#004b62'}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+        scales:{x:{min:0,max:10,grid:{color:'#eef2f7'}},y:{grid:{display:false},ticks:{font:{size:11}}}},
+        plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:8}},
+          tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${fmt(c.parsed.x)}`}}}}});
+    charts.push(c);
+  },0);
+
+  // tabell med differens
+  const tbl=el('table');
+  tbl.append(el('thead',{},el('tr',{},
+    el('th',{},'Frågeområde'),el('th',{class:'num'},cState.pA),
+    el('th',{class:'num'},cState.pB),el('th',{class:'num'},'Δ'))));
+  const tb=el('tbody');
+  labels.forEach((o,i)=>{
+    const d=(valA[i]!=null&&valB[i]!=null)?(valB[i]-valA[i]):null;
+    const col=d==null?'':(d>0?'var(--pos)':d<0?'var(--neg)':'var(--muted)');
+    tb.append(el('tr',{},el('td',{},o),el('td',{class:'num'},fmt(valA[i])),
+      el('td',{class:'num'},fmt(valB[i])),
+      el('td',{class:'num',style:`color:${col};font-weight:700`},
+        d==null?'–':(d>0?'+':'')+fmt(d))));
+  });
+  tbl.append(tb);
+  root.append(el('div',{class:'panel'},el('h2',{},'Detaljerad jämförelse'),tbl));
+}
+
+/* ===================== UTFORSKA (drill-down) ===================== */
+const eState={period:null,group:'Elever',sub:null,omrade:null,qi:0};
+function renderUtforska(root){
+  eState.period=eState.period||periods[periods.length-1].key;
+  // grupper/delgrupper som har frågor detta år
+  const grp=eState.group;
+  let subs=[...new Set(questionsFor(eState.period,grp).map(q=>q.subgroup))];
+  if(subs.length===0){ // grupp saknar data detta år -> ta en grupp som har
+    const g2=M.groups.find(g=>questionsFor(eState.period,g).length);
+    if(g2){eState.group=g2;subs=[...new Set(questionsFor(eState.period,g2).map(q=>q.subgroup))];}
+  }
+  if(!subs.includes(eState.sub))eState.sub=subs[0];
+  let oms=[...new Set(questionsFor(eState.period,eState.group,eState.sub).map(q=>q.omrade).filter(Boolean))];
+  if(!oms.includes(eState.omrade))eState.omrade=oms[0];
+  let qs=questionsFor(eState.period,eState.group,eState.sub,eState.omrade);
+  if(eState.qi>=qs.length)eState.qi=0;
+
+  const panel=el('div',{class:'panel'});
+  panel.append(el('h2',{},'Utforska svaren'),
+    el('p',{class:'sub'},'Borra ner till en enskild fråga och se hela svarsfördelningen.'));
+  const ctrls=el('div',{class:'controls'});
+  ctrls.append(mkSel('År',periods.map(p=>[p.key,p.label]),eState.period,v=>{eState.period=v;eState.sub=null;eState.omrade=null;renderMain();}));
+  ctrls.append(mkSel('Grupp',M.groups.map(g=>[g,g]),eState.group,v=>{eState.group=v;eState.sub=null;eState.omrade=null;renderMain();}));
+  ctrls.append(mkSel('Delgrupp',subs.map(s=>[s,s]),eState.sub,v=>{eState.sub=v;eState.omrade=null;renderMain();}));
+  ctrls.append(mkSel('Frågeområde',oms.map(o=>[o,o]),eState.omrade,v=>{eState.omrade=v;eState.qi=0;renderMain();}));
+  panel.append(ctrls);
+  root.append(panel);
+
+  if(qs.length===0){root.append(el('div',{class:'panel'},'Inga frågor för valet.'));return;}
+  const q=qs[eState.qi];
+  const scale=q.n_alt===6?(M.scale6):(M.scale5);
+  const colors=q.n_alt===6?ANSWER6:ANSWER5;
+
+  // vänster: doughnut + gauge ; höger: frågelista
+  const left=el('div',{class:'panel'});
+  left.append(el('h2',{html:q.fraga}),
+    el('p',{class:'sub'},`${eState.group} · ${eState.sub} · ${eState.omrade} · ${q.label}`));
+  const g=el('div',{class:'gauge'},
+    el('div',{},el('div',{class:'val',style:colForMedel(q.medel)},fmt(q.medel)),
+      el('div',{class:'scale'},'medelvärde (0–10)')),
+    pill(q.andelar,colors));
+  left.append(g);
+  left.append(el('div',{class:'chartbox sm'},el('canvas',{id:'dnChart'})));
+  // legend för svarsalternativ
+  const leg=el('div',{class:'legendnote'});
+  scale.forEach((s,i)=> i<q.andelar.length && leg.append(el('span',{},
+    el('span',{class:'dot',style:`background:${colors[i]}`}),`${s} – ${fmt(q.andelar[i])}%`)));
+  left.append(leg);
+  if(q.reverse)left.append(el('div',{class:'note'},
+    'Detta är ett negativt formulerat påstående (markerat “–” i rapporten). '+
+    'Medelvärdet är omvänt beräknat så att ett högt värde alltid är önskvärt.'));
+
+  // höger: alla frågor i området, klickbara
+  const right=el('div',{class:'panel'});
+  right.append(el('h2',{},'Frågor i området'),
+    el('p',{class:'sub'},'Klicka för att byta fråga.'));
+  const tbl=el('table');
+  tbl.append(el('thead',{},el('tr',{},el('th',{},'Fråga'),el('th',{class:'num'},'Medel'))));
+  const tb=el('tbody');
+  qs.forEach((qq,i)=>{
+    tb.append(el('tr',{class:'qrow'+(i===eState.qi?' sel':''),onclick:()=>{eState.qi=i;renderMain();}},
+      el('td',{},qq.fraga+(qq.reverse?' ↺':'')),
+      el('td',{class:'num',style:colForMedel(qq.medel)+';font-weight:700'},fmt(qq.medel))));
+  });
+  tbl.append(tb);right.append(tbl);
+
+  root.append(el('div',{class:'grid2'},left,right));
+
+  setTimeout(()=>{
+    const cv=document.getElementById('dnChart');if(!cv)return;
+    const c=new Chart(cv,{type:'doughnut',
+      data:{labels:scale.slice(0,q.andelar.length),
+        datasets:[{data:q.andelar,backgroundColor:colors,borderWidth:2,borderColor:'#fff'}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'58%',
+        plugins:{legend:{display:false},
+          tooltip:{callbacks:{label:c=>`${c.label}: ${fmt(c.parsed)}%`}}}}});
+    charts.push(c);
+  },0);
+}
+function mkSel(label,opts,val,cb){
+  return el('div',{class:'ctrl'},el('label',{},label),
+    el('select',{onchange:e=>cb(e.target.value)},...opts.map(o=>option(o[0],o[1],o[0]===val))));
+}
+function pill(andelar,colors){
+  const w=el('div',{class:'pillbar',style:'flex:1;min-width:200px'});
+  andelar.forEach((a,i)=>w.append(el('i',{style:`width:${a}%;background:${colors[i]}`,title:fmt(a)+'%'})));
+  return w;
+}
+function colForMedel(m){
+  const c=m>=7.5?'var(--pos)':m>=6?'#2b8a82':m>=5?'var(--mid)':'var(--neg)';
+  return `color:${c}`;
+}
+
+/* ===================== NAV ===================== */
+const TABS=[['oversikt','Översikt',renderOversikt],
+  ['trender','Trender',renderTrender],
+  ['jamfor','Jämför år',renderJamfor],
+  ['utforska','Utforska',renderUtforska]];
+let active='oversikt';
+function renderTabs(){
+  const nav=document.getElementById('tabs');nav.innerHTML='';
+  TABS.forEach(([id,label])=>nav.append(el('button',
+    {class:'tab'+(id===active?' active':''),onclick:()=>{active=id;renderTabs();renderMain();}},label)));
+}
+function renderMain(){
+  clearCharts();
+  const main=document.getElementById('main');main.innerHTML='';
+  TABS.find(t=>t[0]===active)[2](main);
+}
+renderTabs();renderMain();
+</script>
+</body>
+</html>
