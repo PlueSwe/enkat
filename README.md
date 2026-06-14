@@ -13,10 +13,14 @@ python3 serve.py        # startar http://127.0.0.1:8777
 
 ## Flikar
 - **Översikt** – nyckeltal + stabila teman (trygghet, studiero …) för elever över tid.
-- **Trender** – följ ett frågeområde över åren per grupp/delgrupp. Snabbval för
-  stabila teman. Lodräta linjer markerar enkätrevisionerna (2018, 2022).
+- **Trender** – följ ett frågeområde över åren per grupp/delgrupp. Periodväljare där
+  man klickar år / delar av år (VT/HT) i och ur; graferna uppdateras direkt. Lodräta
+  linjer markerar enkätrevisionerna (2018, 2022).
 - **Jämför år** – ställ alla frågeområdens index sida vid sida för två tidpunkter,
   med differenstabell.
+- **Karta** – Sverigekarta (choropleth) per kommun för trygghet och nöjdhet
+  (åk 5 / åk 8 / gymnasiet år 2), 2022–2026. Färgen visar hur kommunen ligger till
+  mot kommunmedianen. Hover/klick för värde, topp- och bottenlista. Data från Kolada.
 - **Utforska** – borra ner: år → grupp → delgrupp → område → fråga, och se hela
   svarsfördelningen som pajdiagram + medelvärde.
 
@@ -30,6 +34,15 @@ python3 build.py        # data/*_raw.json -> skolenkaten_data.js  (normalisering
 ```
 Den färdiga datan (`skolenkaten_data.js`) är redan incheckad, så dashboarden
 funkar direkt utan att köra pipelinen.
+
+### Kartdata (separat källa)
+Kartfliken bygger på **Kolada** (öppen kommundatabas), inte på totalrapporterna –
+de senare är nationella och saknar geografi.
+```bash
+python3 kolada.py       # api.kolada.se -> kolada_data.js  (per kommun 2022–2026)
+```
+Kommungränserna ligger i `vendor/sweden_kommuner.js` (förenklad GeoJSON med
+SCB-kommunkoder, härledd från okfse/sweden-geojson). Båda är incheckade.
 
 ### Steg
 1. **`raw/`** – 30 nedladdade totalrapporter (vt/ht 2015 → 2026).

@@ -9,3 +9,4 @@ txt/
 data/rows_raw.json
 data/trends_raw.json
 data/oindex_raw.json
+vendor/sweden_kommuner.geojson
