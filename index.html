@@ -130,16 +130,16 @@ td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 /* ---- Mobil ---- */
 @media(max-width:600px){
   main{padding:14px 12px 48px}
-  header.top .bar{flex-wrap:wrap;gap:12px;padding:12px 14px}
-  header.top .logo{height:34px}
+  header.top .bar{flex-wrap:wrap;gap:12px;padding:14px 14px}
+  header.top .logo{height:46px}
   header.top .titles{border-left:0;padding-left:0;flex-basis:100%}
   header.top h1{font-size:16px;line-height:1.2}
   header.top .titles p{display:none}
-  /* flikar: scrolla i sidled istället för att radbrytas */
+  /* flikar: fyll bredden, en rad, scrolla i sidled vid behov */
   .tabs .inner{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
-    padding:0 8px;scrollbar-width:none}
+    padding:0 4px;scrollbar-width:none}
   .tabs .inner::-webkit-scrollbar{display:none}
-  .tab{padding:12px 13px;font-size:13px;white-space:nowrap;flex:0 0 auto}
+  .tab{padding:14px 10px;font-size:14.5px;white-space:nowrap;flex:1 0 auto}
   .panel{padding:15px 14px;border-radius:8px;margin-bottom:14px}
   .panel h2{font-size:16px}
   /* kontroller: varje väljare på egen rad, full bredd, 16px (ingen iOS-zoom) */
