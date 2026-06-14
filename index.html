@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Skolenkäten – Resultat & trender 2015–2026</title>
+<link rel="icon" type="image/png" href="vendor/favicon.png">
+<link rel="shortcut icon" href="vendor/favicon.png">
+<link rel="apple-touch-icon" href="vendor/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Mulish:ital,wght@0,400;0,500;0,600;0,700;0,800&display=swap" rel="stylesheet">
@@ -623,114 +626,125 @@ function pathD(feat, P){
 
 function renderThemeMap(root){
   const theme=tState.omrade;
-  // kartdata finns bara för elever och för de teman Kolada täcker
   if(tState.group!=='Elever'){
-    root.append(el('div',{class:'panel'},el('h2',{},'Karta per kommun'),
-      el('p',{class:'sub'},'Kommunkartan bygger på Skolenkätens elevsvar (åk 5, åk 8 och gymnasiet år 2) via Kolada. Välj gruppen Elever ovan för att se kartan.')));
+    root.append(el('div',{class:'panel'},el('h2',{},'Karta · län'),
+      el('p',{class:'sub'},'Kartan bygger på Skolenkätens elevsvar (åk 5, åk 8 och gymnasiet år 2) via Kolada. Välj gruppen Elever ovan för att se kartan.')));
     return;
   }
   if(!kThemes.has(theme)){
-    root.append(el('div',{class:'panel'},el('h2',{},'Karta per kommun'),
-      el('p',{class:'sub'},'Kommunkarta finns för temana: '+[...kThemes].join(', ')+'. Välj ett av dessa ovan.')));
+    root.append(el('div',{class:'panel'},el('h2',{},'Karta · län'),
+      el('p',{class:'sub'},'Karta finns för temana: '+[...kThemes].join(', ')+'. Välj ett av dessa ovan.')));
     return;
   }
-  if(!window.SWEDEN_GEO){
-    root.append(el('div',{class:'panel'},el('h2',{},'Karta per kommun'),
+  if(!window.SWEDEN_LAN || !window.KOMMUN_LOOKUP){
+    root.append(el('div',{class:'panel'},el('h2',{},'Karta · län'),
       el('p',{class:'sub'},'Laddar kartdata …')));
-    const s=document.createElement('script');
-    s.src='vendor/sweden_kommuner.js';
-    s.onload=()=>{ if(active==='trender') renderMain(); };
-    s.onerror=()=>{ const p=root.querySelector('.sub'); if(p)p.textContent='Kunde inte ladda kartdata (vendor/sweden_kommuner.js).'; };
-    document.body.append(s);
+    ['vendor/sweden_lan.js','vendor/kommun_lookup.js'].forEach(src=>{
+      if(document.querySelector('script[data-map="'+src+'"]')) return;
+      const s=document.createElement('script'); s.src=src; s.dataset.map=src;
+      s.onload=()=>{ if(window.SWEDEN_LAN&&window.KOMMUN_LOOKUP&&active==='trender') renderMain(); };
+      document.body.append(s);
+    });
     return;
   }
-  const feats=window.SWEDEN_GEO.features;
+  const feats=window.SWEDEN_LAN.features;
+  const LK=window.KOMMUN_LOOKUP;             // kod -> [namn, lan]
   const P=buildProjection(feats);
   const themeObj=K.themes.find(t=>t.tema===theme);
-  // årskurs: följ vald delgrupp om möjligt, annars state/default
   const subGrades=[...tState.subs].map(s=>SUB2GRADE[s]).filter(Boolean);
   let grade=mapState.grade;
   if(!grade || !themeObj.kpi[grade])
     grade = ['ak5','ak8','gy2'].find(g=>subGrades.includes(g)) || 'ak5';
   const year=mapState.year;
-  const kpiId=themeObj.kpi[grade];
-  const vals=(K.data[kpiId]&&K.data[kpiId][String(year)])||{};
-  const arr=Object.values(vals);
-  const med=median(arr);
+  const vals=(K.data[themeObj.kpi[grade]]&&K.data[themeObj.kpi[grade]][String(year)])||{};
+
+  // ---- per-kommun rangordning + per-län-aggregat ----
+  const kommuner=Object.entries(vals).map(([kod,v])=>({
+    kod, v, namn:(LK[kod]?LK[kod][0]:kod), lan:(LK[kod]?LK[kod][1]:'')
+  })).sort((a,b)=>b.v-a.v);
+  const kMed=median(kommuner.map(k=>k.v));      // rikets kommunmedian
+  const lanAgg={};
+  kommuner.forEach(k=>{ if(k.lan){(lanAgg[k.lan]=lanAgg[k.lan]||[]).push(k.v);} });
+  const lanMean={}; Object.keys(lanAgg).forEach(l=>lanMean[l]=lanAgg[l].reduce((a,b)=>a+b,0)/lanAgg[l].length);
+  const lanMed=median(Object.values(lanMean));
 
   // ---- panel + kontroller ----
   const panel=el('div',{class:'panel'});
-  panel.append(el('h2',{},'Karta per kommun · '+theme.toLowerCase()),
-    el('p',{class:'sub'},'Hur kommunerna ligger till på temat ”'+theme+'”. Färgen visar kommunen mot kommunmedianen. Klicka en kommun för detaljer. Källa: Kolada.'));
+  panel.append(el('h2',{},'Karta · län · '+theme.toLowerCase()),
+    el('p',{class:'sub'},'Varje län färgas efter genomsnittet av sina kommuner. Klicka ett län för de högsta och lägsta kommunerna där. Källa: Kolada.'));
   const ctrls=el('div',{class:'controls'});
   ctrls.append(mkSel('Årskurs',Object.entries(K.grade_label),grade,v=>{mapState.grade=v;mapState.sel=null;renderMain();}));
   ctrls.append(mkSel('År',K.years.map(y=>[y,String(y)]),year,v=>{mapState.year=+v;renderMain();}));
   panel.append(ctrls);
-  panel.append(el('p',{class:'sub',style:'margin:0'},
-    el('b',{html:themeObj.fraga}),'  ·  ',
-    `${arr.length} kommuner med data  ·  median ${fmt(med)} %`));
+  panel.append(el('div',{class:'note',style:'margin:0 0 16px'},
+    el('b',{},'Vad färgen visar: '),
+    'andelen elever som svarat ”Helt och hållet” på frågan ',
+    el('i',{},'”'+themeObj.fraga+'”'),
+    ' – alltså det faktiska resultatet, inte hur många som svarade på enkäten (svarsfrekvensen). ',
+    `Riksmedian för kommunerna: ${fmt(kMed)} %.`));
 
-  // ---- SVG-karta ----
+  // ---- SVG-karta (län) ----
   const mapbox=el('div',{class:'mapbox'});
   const tip=el('div',{class:'maptip'});
   const ns='http://www.w3.org/2000/svg';
   const svg=document.createElementNS(ns,'svg');
   svg.setAttribute('viewBox',`0 0 ${P.W} ${P.H}`);
   feats.forEach(f=>{
-    const code=f.properties.id, v=vals[code];
+    const lan=f.properties.lan, mv=lanMean[lan];
     const path=document.createElementNS(ns,'path');
     path.setAttribute('d',pathD(f,P));
-    path.setAttribute('fill',colorFor(v,med));
-    if(code===mapState.sel)path.setAttribute('class','sel');
+    path.setAttribute('fill',colorFor(mv,lanMed));
+    if(lan===mapState.sel)path.setAttribute('class','sel');
     path.addEventListener('mousemove',e=>{
       const r=mapbox.getBoundingClientRect();
       tip.style.left=(e.clientX-r.left)+'px';tip.style.top=(e.clientY-r.top)+'px';
       tip.style.opacity='1';
-      tip.innerHTML=`<b>${f.properties.namn}</b> · ${v==null?'ingen data':fmt(v)+' %'}`;
+      tip.innerHTML=`<b>${f.properties.namn}</b> · ${mv==null?'ingen data':'snitt '+fmt(mv)+' %'}`;
     });
     path.addEventListener('mouseleave',()=>tip.style.opacity='0');
-    path.addEventListener('click',()=>{mapState.sel=(mapState.sel===code?null:code);renderMain();});
+    path.addEventListener('click',()=>{mapState.sel=(mapState.sel===lan?null:lan);renderMain();});
     svg.append(path);
   });
   mapbox.append(svg,tip);
 
-  // ---- sidopanel: vald kommun + topp/botten ----
+  // ---- sidopanel ----
   const side=el('div');
-  const selV = mapState.sel?vals[mapState.sel]:null;
-  const selName = mapState.sel?(feats.find(f=>f.properties.id===mapState.sel)?.properties.namn):null;
-  if(mapState.sel){
-    const diff=selV!=null?selV-med:null;
-    side.append(el('div',{class:'panel',style:'margin-bottom:16px'},
-      el('div',{class:'sub',style:'margin:0 0 4px'},'Vald kommun'),
-      el('div',{style:'font-weight:800;font-size:16px;color:var(--brand)'},selName),
-      el('div',{class:'bigval',style:'margin:6px 0'},selV==null?'–':fmt(selV)+' %'),
-      el('div',{class:'muted',style:'font-size:13px'},
-        diff==null?'Ingen data':(diff>=0?'+':'')+fmt(diff)+' jmf. median ('+fmt(med)+' %)')));
-  }
-  // rangordning
-  const ranked=Object.entries(vals).map(([c,v])=>({c,v,
-    namn:feats.find(f=>f.properties.id===c)?.properties.namn||c})).sort((a,b)=>b.v-a.v);
   const mkRows=list=>{const w=el('div',{class:'ranklist'});
-    list.forEach(r=>w.append(el('div',{class:'row'+(r.c===mapState.sel?' sel':''),
-      onclick:()=>{mapState.sel=(mapState.sel===r.c?null:r.c);renderMain();}},
-      el('span',{},r.namn),el('span',{class:'v',style:colForPct(r.v,med)},fmt(r.v)+' %'))));
+    if(!list.length)w.append(el('div',{class:'muted',style:'padding:6px 8px'},'Ingen data.'));
+    list.forEach(r=>w.append(el('div',{class:'row'},
+      el('span',{},r.namn),el('span',{class:'v',style:colForPct(r.v,kMed)},fmt(r.v)+' %'))));
     return w;};
+
+  if(mapState.sel){
+    const lanFeat=feats.find(f=>f.properties.lan===mapState.sel);
+    const inLan=kommuner.filter(k=>k.lan===mapState.sel);
+    side.append(el('div',{class:'panel',style:'margin-bottom:16px'},
+      el('div',{class:'flex',style:'justify-content:space-between'},
+        el('h2',{style:'font-size:16px;margin:0'},(lanFeat?lanFeat.properties.namn:'')+' län'),
+        el('button',{class:'linklike',onclick:()=>{mapState.sel=null;renderMain();}},'rensa')),
+      el('div',{class:'muted',style:'font-size:12.5px;margin:2px 0 10px'},
+        `${inLan.length} kommuner · snitt ${fmt(lanMean[mapState.sel])} %`),
+      el('h2',{style:'font-size:14px'},'Högsta 5 i länet'),mkRows(inLan.slice(0,5)),
+      el('h2',{style:'font-size:14px;margin-top:12px'},'Lägsta 5 i länet'),mkRows(inLan.slice(-5).reverse())));
+  } else {
+    side.append(el('div',{class:'panel',style:'margin-bottom:16px'},
+      el('div',{class:'sub',style:'margin:0'},'Klicka ett län på kartan för att se de högsta och lägsta kommunerna där.')));
+  }
   side.append(el('div',{class:'panel'},
-    el('h2',{style:'font-size:15px'},'Högst'),mkRows(ranked.slice(0,6)),
-    el('h2',{style:'font-size:15px;margin-top:14px'},'Lägst'),mkRows(ranked.slice(-6).reverse())));
+    el('h2',{style:'font-size:15px'},'Högsta 5 i Sverige'),mkRows(kommuner.slice(0,5)),
+    el('h2',{style:'font-size:15px;margin-top:14px'},'Lägsta 5 i Sverige'),mkRows(kommuner.slice(-5).reverse())));
 
   panel.append(el('div',{class:'maplayout'},mapbox,side));
-  // legend
   const grad=el('div',{class:'grad',style:'background:linear-gradient(90deg,#c1361b,#f3f6f7,#0e6b63)'});
   panel.append(el('div',{class:'legendbar'},
-    el('span',{},'Under median'),grad,el('span',{},'Över median'),
+    el('span',{},'Län under snittet'),grad,el('span',{},'över snittet'),
     el('span',{class:'muted',style:'margin-left:auto'},
       el('span',{class:'dot',style:'background:#e3e8ea;margin-right:5px'}),'ingen data')));
   root.append(panel);
   root.append(el('div',{class:'note'},
-    'Värdet är andelen elever som svarat ”Helt och hållet” på frågan – inte samma 0–10-index '+
-    'som i övriga flikar. Data finns på kommunnivå 2022–2026 via Kolada. Vita/grå kommuner '+
-    'saknar publicerat värde (ofta för få svarande).'));
+    'Måttet är andel som svarat ”Helt och hållet” (%), via Kolada 2022–2026 – inte samma '+
+    '0–10-index som trendlinjerna ovan, eftersom indexet inte publiceras per kommun. '+
+    'Län färgas mot länssnittet; kommunlistorna jämförs mot rikets kommunmedian.'));
 }
 function colForPct(v,med){
   const d=v-med;const c=d>=4?'var(--pos)':d<=-4?'var(--neg)':'var(--muted)';

@@ -18,11 +18,13 @@ python3 serve.py        # startar http://127.0.0.1:8777
   linjer markerar enkätrevisionerna (2018, 2022).
 - **Jämför år** – ställ alla frågeområdens index sida vid sida för två tidpunkter,
   med differenstabell.
-  Längst ned ligger en **Sverigekarta per kommun** som följer det valda temat
+  Längst ned ligger en **Sverigekarta per län** som följer det valda temat
   (trygghet, studiero, förhindra kränkningar, elevhälsa, stimulans, nöjdhet) för
-  elever i åk 5 / åk 8 / gymnasiet år 2, 2022–2026. Färgen visar hur kommunen
-  ligger till mot kommunmedianen; klick ger värde + topp/bottenlista. Data från
-  Kolada (andel som svarat ”Helt och hållet” – 0–10-indexet finns inte per kommun).
+  elever i åk 5 / åk 8 / gymnasiet år 2, 2022–2026. Varje län färgas efter snittet
+  av sina kommuner; klick på ett län visar de **5 högsta och 5 lägsta kommunerna**
+  där, och en lista visar topp/botten 5 för hela Sverige. Måttet är andel som
+  svarat ”Helt och hållet” (%) – det faktiska resultatet, inte svarsfrekvensen.
+  Data från Kolada (0–10-indexet publiceras inte per kommun).
 - **Utforska** – borra ner: år → grupp → delgrupp → område → fråga, och se hela
   svarsfördelningen som pajdiagram + medelvärde.
 
@@ -43,8 +45,9 @@ de senare är nationella och saknar geografi.
 ```bash
 python3 kolada.py       # api.kolada.se -> kolada_data.js  (per kommun 2022–2026)
 ```
-Kommungränserna ligger i `vendor/sweden_kommuner.js` (förenklad GeoJSON med
-SCB-kommunkoder, härledd från okfse/sweden-geojson). Båda är incheckade.
+Länsgränserna ligger i `vendor/sweden_lan.js` och en kommun→namn/län-uppslagning
+i `vendor/kommun_lookup.js` (förenklade, härledda från okfse/sweden-geojson).
+Faviconen (`vendor/favicon.png`) är Skolinspektionens. Allt är incheckat.
 
 ### Steg
 1. **`raw/`** – 30 nedladdade totalrapporter (vt/ht 2015 → 2026).
